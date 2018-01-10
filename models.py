@@ -1,9 +1,9 @@
-"""Copyright (C) 2017 Camino Tech
+"""Copyright (C) 2017 Javier Fernandez Valles
  # *
  # * This file is part of Decissions Project.
  # *
  # * Decissions Project can not be copied and/or distributed without the express
- # * permission of Camino Tech
+ # * permission of Javier Fernandez Valles
 """
 import uuid
 
@@ -11,10 +11,6 @@ from django.db import models
 # from django.contrib.gis.db.models.fields import PointField
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
-
-
-# USING ABRACT USER MAKES THIS APP NOT REUSABLE < THIS IS MAIN APP >
-
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
@@ -27,13 +23,7 @@ class UserProfile(models.Model):
     profile_picture = models.CharField()
     hometown = models.CharField()
     current_city = models.CharField()
-    # may be too aggressive
     income_status = models.CharField()
-    # income_amount = models.DecimalField()
-    # will have to look at followers and match for better results (maybe recommend), this could be multiples
-    # Users can choose to display
-    # { user_education: { fields: [ title: "", place: "", intitution_name: "", date_finished: "", date_entered: "",
-    #  gpa: "", student_email = "", ]}}
     educational_background = JSONField()
     password = models.CharField()
     email = models.EmailField()
@@ -45,9 +35,7 @@ class UserProfile(models.Model):
     ethnicity = models.CharField()
     page_layout = models.CharField()  # uses colors.py
     banner = models.CharField()  # link to image
-    # Maybe?
     social_status = models.CharField()
-    # - the permissions, and verifications that this user  has
     verified = models.BooleanField() # SHARED FROM ROLES
     time_membership_expires = models.DateTimeField() # SHARED FROM ROLES
     milestones = JSONField()
@@ -98,15 +86,8 @@ class UserToQuestions(models.Model):
     @classmethod
     def anonymous_vote(cls):
         if cls.is_anonymous_vote is True:
-            # Do not display on News Feed / User Profile Page
-            # if its anonymous then the question voted on still shows
-            # but the decision of the user isn't
             cls.is_anonymous_vote = False
         else:
-            # display on News Feed / User Profile Page
-            # could possibly all go through as REST API
-            # then it would just change the trigger for that question
-            # individually
             cls.is_anonymous_vote = True
 
 
@@ -125,9 +106,7 @@ class Question(models.Model):
     updated_date = models.DateTimeField(blank=True, null=True, auto_now=True)
     unique_id = models.CharField(max_length=120, blank=True, unique=True, default=uuid.uuid4)
     title = models.CharField()
-    # section contains JSON with photo link, and choices
     sections = models.ManyToManyField(QuestionSection)
-    # to check if it has already been voted)
     question_to_user = models.ForeignKey(QuestionToUser)
     number_of_views = models.BigIntegerField()
     number_of_votes = models.IntegerField()
@@ -162,7 +141,6 @@ class Comment(models.Model):
 
     @classmethod
     def reply(cls):
-        # FOR THE MOMENT THERE WILL BE NO REPLYING TO COMMENTS
         pass
 
     @classmethod
@@ -180,25 +158,17 @@ class Comment(models.Model):
 
 
 class QuestionComments(models.Model):
-    """
-    What makes this Comment-type Unique?
-
-    Multiple comment sections per question section,
-    so each instance of this class will be one comment section per question section
-    """
     question_section_id = models.ForeignKey(Question)
     all_of_the_comments_in_a_section = models.ManyToManyField(Comment)
 
     @classmethod
     def sort_by_most_upvotes(self):
-        """ query all comments in this section, and rank the top three """
         pass
     @classmethod
     def sort_by_most_recent(self):
         pass
     @classmethod
     def get_top_three_comments(self):
-        """ useful for when keywords come in, to also pull data and Search Engine based on comments"""
         pass
 
 
